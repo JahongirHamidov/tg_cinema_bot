@@ -1,0 +1,19 @@
+{
+  "name": "cinema_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.51.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
