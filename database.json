@@ -1,0 +1,64 @@
+{
+    "films":[
+        {
+            "uuid":"f123",
+            "name": "Beginning",
+            "type": "action",
+            "year": "2010",
+            "rate": "8.665",
+            "length": "2:28",
+            "country": "USA",
+            "link":"https://www.kinopoisk.ru/film/nachalo-2010-447301",
+            "picture":"https://www.kinopoisk.ru/images/film_big/447301.jpg",
+            "cinemas": ["c123", "c345"]
+        },
+        {
+            "uuid":"f234",
+            "name":"Gladiator",
+            "type":"action",
+            "year":"2000",
+            "rate":"8.592",
+            "length":"2:35",
+            "country":"USA",
+            "link":"https://www.kinopoisk.ru/film/gladiator-2000-474",
+            "picture":"https://www.kinopoisk.ru/images/film_big/474.jpg",
+            "cinemas":["c123", "c456"]
+        },
+        {
+            "uuid":"f345",
+            "name":"Matrix",
+            "type":"action",
+            "year":"1999",
+            "rate":"8.491",
+            "length":"2:16",
+            "country":"USA",
+            "link":"https://www.kinopoisk.ru/film/matrica-1999-301",
+            "picture":"https://www.kinopoisk.ru/images/film_iphone/iphone360_301.jpg",
+            "cinemas":["c345", "c234"]
+        },
+        {
+            "uuid":"f456",
+            "name":"Brother",
+            "type":"action",
+            "year":"1997",
+            "rate":"8.491",
+            "length":"1:40",
+            "country":"Russia",
+            "link":"https://www.kinopoisk.ru/film/brat-1997-41519",
+            "picture":"https://www.kinopoisk.ru/images/film_big/41519.jpg",
+            "cinemas":["c345", "c456"]
+        },
+        {
+            "uuid":"f567",
+            "name":"Karti, dengi i stvola",
+            "type":"comedy",
+            "year":"1998",
+            "rate":"8.543",
+            "length":"1:47",
+            "country":"UK",
+            "link":"https://www.kinopoisk.ru/film/karty-dengi-dva-stvola-1998-522",
+            "picture":"https://www.kinopoisk.ru/images/film_iphone/iphone360_522.jpg",
+            "cinemas":["c345", "c567", "c123"]
+        }
+    ]
+}
