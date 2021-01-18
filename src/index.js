@@ -33,11 +33,11 @@ const bot = new TelegramBot(config.TOKEN, {
 })
 
 bot.on('message', msg => {
-    console.log('Working')
     const chatId = helper.getChatId(msg)
 
     switch (msg.text) {
         case kb.home.favourite:
+            showFavouriteFilms(chatId, msg.from.id)
             break;
         case kb.home.films:
             bot.sendMessage(chatId, `Select genre: `, {
@@ -86,20 +86,31 @@ bot.onText(/\/start/, msg => {
 
 bot.onText(/\/f(.+)/, (msg, [source, match]) => {
     const filmUuid = helper.getItemUuid(source)
-    
     const chatId = helper.getChatId(msg)
 
-    Film.findOne({uuid:filmUuid}).then(film=>{
+    Promise.all([
+        Film.findOne({uuid:filmUuid}),
+        User.findOne({telegram_id: msg.from.id})
+    ]).then(([film, user])=>{
+
+        let isFav = false
+        if(user){
+            isFav = user.films.indexOf(film.uuid) !== -1
+        }
+
+        const favText = isFav ? 'Remove from favourites' : 'Add favourites'
+
         bot.sendPhoto(chatId, film.picture, {
             caption: `\nName: ${film.name}\nYear: ${film.year}\nRating: ${film.rate}\nLength: ${film.length}\nCountry: ${film.country}\n`,
             reply_markup:{
                 inline_keyboard: [
                     [
                         {
-                            text: 'Add favourites',
+                            text: favText,
                             callback_data: JSON.stringify({
                                 type: ACTION_TYPE.TOGGLE_FAV_FILM,
-                                filmUuid: film.uuid
+                                filmUuid: film.uuid,
+                                isFav: isFav
                             })
                         },
                         {
@@ -119,6 +130,10 @@ bot.onText(/\/f(.+)/, (msg, [source, match]) => {
                 ]
             }
         })
+    })
+
+    .then(film=>{
+
     })
 
 })
@@ -162,6 +177,7 @@ bot.onText(/\/c(.+)/, (msg,[source,match])=>{
 })
 
 bot.on('callback_query', query=>{
+    const userId = query.from.id
     let data
     try {
         data = JSON.parse(query.data)
@@ -170,14 +186,43 @@ bot.on('callback_query', query=>{
     }
 
     const {type} = data
-
     if(type === ACTION_TYPE.SHOW_CINEMAS_MAP){
-
+        const {lat, lon} = data
+        bot.sendLocation(query.message.chat.id, lat, lon )
     } else if(type === ACTION_TYPE.SHOW_CINEMAS){
-        
+        sendCinemasByQuery(userId, {uuid: { '$in':data.cinemaUuid }} )
+    } else if(type === ACTION_TYPE.TOGGLE_FAV_FILM){
+        toggleFavouriteFilm(userId, query.id, data)
+    } else if(type === ACTION_TYPE.SHOW_FILMS){
+        sendFilmsByQuery(userId, {uuid: {'$in': data.filmUuids}})
     }
+})
 
-    console.log(query.data)
+bot.on('inline_query',query => {
+    Film.find({}).then(films => {
+        const results = films.map(f=>{
+            return {
+                id: f.uuid,
+                type: 'photo',
+                photo_url: f.picture,
+                thumb_url: f.picture,
+                caption: `\nName: ${f.name}\nYear: ${f.year}\nRating: ${f.rate}\nLength: ${f.length}\nCountry: ${f.country}\n`,
+                reply_markup:{
+                    inline_keyboard:[
+                        [
+                            {
+                                text: `Kinopoisk: ${f.name}`,
+                                url: f.link
+                            }
+                        ]   
+                    ]
+                }
+            }
+        })
+        bot.answerInlineQuery(query.id, results, {
+            cache_time: 0
+        })
+    })
 })
 
 ///////////////////////////////////
@@ -218,5 +263,68 @@ function getCinemasInCoords(chatId, location){
         }).join('\n')
         
         sendHTML(chatId, html, 'home')
+    })
+}
+function toggleFavouriteFilm(userId, queryId, {filmUuid, isFav}){
+
+    let userPromise
+
+    User.findOne({telegramId:userId})
+        .then(user => {
+            if(user){
+                if(isFav){
+                    user.films = user.films.filter(fUuid => fUuid !== filmUuid)
+                } else {
+                    user.films.push(filmUuid)
+                }
+                userPromise = user
+            } else {
+                userPromise = new User({
+                    telegramId: userId,
+                    films: [filmUuid]
+                })
+            }
+
+            const answerText = isFav ? 'Deleted' : 'Added'
+
+            userPromise.save().then(_ => {
+                bot.answerCallbackQuery({
+                    callback_query_id: queryId,
+                    text: answerText
+                })
+            }).catch(e=>console.log(e))
+        }).catch(e=>console.log(e))
+}
+
+function showFavouriteFilms(chatId, telegramId){
+    User.findOne({telegramId})
+        .then(user => {
+            if(user){
+                Film.find({uuid:{'$in':user.films}}).then(films=>{
+                    let html 
+
+                    if(films.length){
+                        html = films.map((f,i)=>{
+                            return `<b>${i+1}</b> ${f.name} - <b>${f.rate}</b> (/f${f.uuid}) `
+                        }).join('\n')
+                    } else {
+                        html = 'Favourites list empty'
+                    }
+                    sendHTML(chatId, html, 'home')
+                })
+            } else {
+                sendHTML(chatId, 'Favourites list empty', 'home')
+            }
+        })
+}
+
+function sendCinemasByQuery(userId, query){
+    console.log(query)
+    Cinema.find(query).then(cinemas => {
+        const html = cinemas.map((c,i)=>{
+            return `<b>${i+1}</b> ${c.name} - /c${c.uuid}`
+        }).join('\n')
+        
+        sendHTML(userId, html, 'home')
     })
 }
