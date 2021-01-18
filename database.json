@@ -60,5 +60,57 @@
             "picture":"https://www.kinopoisk.ru/images/film_iphone/iphone360_522.jpg",
             "cinemas":["c345", "c567", "c123"]
         }
+    ],
+    "cinemas":[
+        {
+            "uuid":"c123",
+            "name":"World Cinema Plus",
+            "location": {
+                "latitude": 59.883744,
+                "longitude": 30.268672
+            },
+            "url":"http://world-cinema-plus.com",
+            "films":["f890", "f678", "f567", "f123"]
+        },
+        {
+            "uuid":"c234",
+            "name":"The Greatest Cinema",
+            "location": {
+                "latitude": 59.843103,
+                "longitude": 30.305378
+            },
+            "url":"http://the-greatest-cinema.com",
+            "films":["f345", "f678"]
+        },
+        {
+            "uuid":"c456",
+            "name":"Happy hours",
+            "location": {
+                "latitude": 59.883744,
+                "longitude": 30.268672
+            },
+            "url":"http://happy-hours.com",
+            "films":["f234", "f456", "f789", "f890"]
+        },
+        {
+            "uuid":"c345",
+            "name":"Watch Your Eyes",
+            "location": {
+                "latitude": 60.883744,
+                "longitude": 30.398672
+            },
+            "url":"http://watch-your-eyes.com",
+            "films":["f123", "f345", "f456", "f567"]
+        },
+        {
+            "uuid":"c567",
+            "name":"Family Cinema",
+            "location": {
+                "latitude": 60.003744,
+                "longitude": 30.198672
+            },
+            "url":"http://family-cinema.com",
+            "films":["f567", "f789"]
+        }
     ]
 }
