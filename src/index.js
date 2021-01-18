@@ -20,7 +20,12 @@ const database = require('../database.json')
 
 //database.cinemas.forEach(c=>new Cinema(c).save().catch(e=>console.log(e)))
 
-
+const ACTION_TYPE = {
+    TOGGLE_FAV_FILM: 'tff',
+    SHOW_CINEMAS: 'sc',
+    SHOW_CINEMAS_MAP: 'scm',
+    SHOW_FILMS: 'sf'
+}
 
 ////////////////////////////////////////
 const bot = new TelegramBot(config.TOKEN, {
@@ -92,11 +97,17 @@ bot.onText(/\/f(.+)/, (msg, [source, match]) => {
                     [
                         {
                             text: 'Add favourites',
-                            callback_data: film.uuid
+                            callback_data: JSON.stringify({
+                                type: ACTION_TYPE.TOGGLE_FAV_FILM,
+                                filmUuid: film.uuid
+                            })
                         },
                         {
                             text: 'Show cinemas',
-                            callback_data: film.uuid
+                            callback_data: JSON.stringify({
+                                type: ACTION_TYPE.SHOW_CINEMAS,
+                                cinemaUuid: film.cinemas
+                            })
                         }
                     ],
                     [
@@ -128,19 +139,45 @@ bot.onText(/\/c(.+)/, (msg,[source,match])=>{
                         },
                         {
                             text: 'See in map',
-                            callback_data: JSON.stringify(cinema.uuid)
+                            callback_data: JSON.stringify({
+                                type:ACTION_TYPE.SHOW_CINEMAS_MAP,
+                                lat: cinema.location.latitude,
+                                lon: cinema.location.longitude
+                            })
                         }
                     ],
                     [
                         {
                             text: 'Show movies',
-                            callback_data: JSON.stringify(cinema.films)
+                            callback_data: JSON.stringify({
+                                type: ACTION_TYPE.SHOW_FILMS,
+                                filmUuids: cinema.films
+                            })
                         }
                     ]
                 ]
             }
         })
     })
+})
+
+bot.on('callback_query', query=>{
+    let data
+    try {
+        data = JSON.parse(query.data)
+    } catch (e) {
+        throw new Error('Data is not an object')
+    }
+
+    const {type} = data
+
+    if(type === ACTION_TYPE.SHOW_CINEMAS_MAP){
+
+    } else if(type === ACTION_TYPE.SHOW_CINEMAS){
+        
+    }
+
+    console.log(query.data)
 })
 
 ///////////////////////////////////
